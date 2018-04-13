@@ -69,12 +69,6 @@ Search_Settings *get_search_settings(char *argv[])
 		free(ssettings);
 		return NULL;
 	}
-	// Ask for the file/directory to search at if it is missing.
-	if(!ssettings->where_to_search)
-	{
-		printf("Please enter the path of the file: ");
-		scanf("%s", ssettings->where_to_search);
-	}
 	return ssettings; // All Good!
 }
 

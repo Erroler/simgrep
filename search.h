@@ -13,7 +13,7 @@
 #define SEARCH_H
 
 /** Returns 0 if there was a match or 1 if not.*/
-int process_line(char *line, ssize_t size, const Search_Settings *ssettings)
+int process_line(char *line, const Search_Settings *ssettings)
 {
 	char *pos = line;
 	// Search string for occurrences of pattern.
@@ -53,7 +53,7 @@ void process_file(char *path, const Search_Settings *ssettings)
 	int total_number_of_matches = 0;
 	while ((chars_read = getline(&line, &buffer_size, fp)) != -1)
 	{
-		if (process_line(line, chars_read, ssettings) == 0) // Hooray! Match
+		if (process_line(line, ssettings) == 0) // Hooray! Match
 		{
 			if (ssettings->only_show_file_names)
 			{
