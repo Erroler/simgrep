@@ -1,8 +1,10 @@
+#define _GNU_SOURCE		// Needed in order to use gnu specific function strcasest
 #include <stdio.h>
 #include "search_settings.h"
 #include "files.h"
 #include "search.h"
 #include "signals.h"
+#include "logging.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,14 +23,32 @@ int main(int argc, char *argv[])
 	if(setup_signal_handlers())
 	{
 		printf("Failed to setup signal handlers. Exiting.\n");
+		return 1;
 	}
+
+	/* Initialize logging. */
+	if(init_logging())
+	{
+		printf("Failed to initialize logging. Exiting.\n");
+		return 1;
+	}
+
+	/* Log argument variables. */
+	char *arg_variables = "";
+	for (char **strPtr = argv; *strPtr != NULL; strPtr++) 
+	{
+		char *str = *strPtr;
+		arg_variables = concatenate_strings(arg_variables, str);
+		arg_variables = concatenate_strings(arg_variables, " ");
+	}
+	log_action("COMANDO", arg_variables);
 
 	/* Check if file/dir exists */
 	if(file_exists(ssettings->where_to_search) != 0)
 	{
 		printf("No file or directory could be located at: %s\n", ssettings->where_to_search);
 	}
-
+	
 	/* Start Search */
 	if(is_regular_file(ssettings->where_to_search))
 	{

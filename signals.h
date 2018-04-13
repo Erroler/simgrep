@@ -2,11 +2,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "logging.h"
 
 #ifndef SIGNALS_H
 #define SIGNALS_H
 
-void sig_child(int);
 void sig_int(int);
 void sig_usr1(int);
 void sig_usr2(int);
@@ -25,8 +25,6 @@ int setup_signal_handlers()
 	// Make a new process group for the child processes.
 	child_pgid = father_pgid + 1;
 	// Setup signal handlers.
-	if (signal(SIGCHLD, sig_child) == SIG_ERR)	 // Prevents child processes from becoming zombies.
-		return 1; 
 	if (signal(SIGINT, sig_int) == SIG_ERR)	// Prevents CTRL+C normal behaviour.
 		return 1; 
 	if (signal(SIGUSR1, sig_usr1) == SIG_ERR)	// A signal received from the father process that makes the child temporarily stop its work.
@@ -37,17 +35,12 @@ int setup_signal_handlers()
 	return 0;
 }
 
-void sig_child(int signo)
-{
-	// Prevents the child process from becoming a zombie.
-	int status;
-	wait(&status);
-}
-
 void sig_int(int signo)
 {
+	log_action("SINAL", "RECEBIDO INT");
 	// Make all child processes stop!
 	killpg(get_child_pgid(), SIGUSR1);
+	log_action("SINAL", "USR1 enviado para filhos.");
 
 	while(1)	// Ask user for input until he gives a proper answer.
 	{
@@ -57,11 +50,13 @@ void sig_int(int signo)
 		if(answer == 'Y' || answer == 'y')
 		{
 			killpg(get_child_pgid(), SIGKILL); // Kill all child processes
+			log_action("SINAL", "KILL enviado para filhos.");
 			return;
 		}
 		else if(answer == 'N' || answer == 'n')
 		{
 			killpg(get_child_pgid(), SIGUSR2); // Resume work on child processes
+			log_action("SINAL", "USR2 enviado para filhos.");
 			return;
 		}
 		else
@@ -74,12 +69,14 @@ void sig_int(int signo)
 
 void sig_usr1(int signo)
 {
+	log_action("SINAL", "RECEBIDO USR1");
 	STOP_WORK = 1;
 	while(STOP_WORK) { }
 }
 
 void sig_usr2(int signo)
 {
+	log_action("SINAL", "RECEBIDO USR2");
 	STOP_WORK = 0;
 }
 

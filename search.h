@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <string.h>
 #include "search_settings.h"
 #include "utilities.h"
 #include "signals.h"
@@ -11,42 +12,36 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-/** Returns number of matches for the apttern or 0 if none.*/
+/** Returns 0 if there was a match or 1 if not.*/
 int process_line(char *line, ssize_t size, const Search_Settings *ssettings)
 {
-	if (ssettings->case_insensitive) // Make all the letters in the line lower case. (No need to make the pattern lower case because it already is).
-	{
-		for (ssize_t i = 0; i < size; i++)
-		{
-			line[i] = tolower(line[i]);
-		}
-	}
-	int number_of_matches = 0;
 	char *pos = line;
-	while ((pos = strstr(pos, ssettings->pattern)) != NULL) // Match!!!!
+	// Search string for occurrences of pattern.
+	while ((pos = (ssettings->case_insensitive ? strcasestr(pos, ssettings->pattern) : strstr(pos, ssettings->pattern))) != NULL) // Match!!!!
 	{
 		if (ssettings->match_must_be_word) // Check if the match is a word by the grep definition of it.
 		{
 			if (pos == line || pos == line - strlen(ssettings->pattern))
 			{
-				number_of_matches++;
+				return 0;
 			}
 			else if ( !is_word_constituent(*(pos-1)) && !is_word_constituent(*(pos + strlen(ssettings->pattern))) )
 			{
-				number_of_matches++;
+				return 0;
 			}
 		}
 		else 
 		{
-			number_of_matches++;
+			return 0;
 		}
 		pos++;
 	}
-	return number_of_matches;
+	return 1;
 }
 
 void process_file(char *path, const Search_Settings *ssettings)
 {
+	log_action("ABERTO FICHEIRO", path);
 	FILE *fp;
 	/* Open the file in order to read it */
 	fp = fopen(path, "r");
@@ -58,8 +53,7 @@ void process_file(char *path, const Search_Settings *ssettings)
 	int total_number_of_matches = 0;
 	while ((chars_read = getline(&line, &buffer_size, fp)) != -1)
 	{
-		int number_of_matches;
-		if ((number_of_matches = process_line(line, chars_read, ssettings)) > 0) // Hooray! Match
+		if (process_line(line, chars_read, ssettings) == 0) // Hooray! Match
 		{
 			if (ssettings->only_show_file_names)
 			{
@@ -77,17 +71,19 @@ void process_file(char *path, const Search_Settings *ssettings)
 			}
 		}
 		line_number++;
-		total_number_of_matches += number_of_matches;
+		total_number_of_matches++;
 	}
 
 	if (ssettings->show_number_of_lines_matched)
 	{
 		printf("%d\n", total_number_of_matches);
 	}
+	log_action("ABERTO FICHEIRO", path);
 }
 
 void process_directory(char *path, const Search_Settings *ssettings)
 {
+	log_action("DIRETORIO ABERTO", path);
 	// Declare needed structures for directory parsing.
 	DIR *dir;
 	struct dirent *dentry;
@@ -129,6 +125,8 @@ void process_directory(char *path, const Search_Settings *ssettings)
 			}
 		}
 	}
+	closedir(dir);
+	log_action("DIRETORIO FECHADO", path);
 }
 
 #endif

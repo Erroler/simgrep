@@ -75,13 +75,6 @@ Search_Settings *get_search_settings(char *argv[])
 		printf("Please enter the path of the file: ");
 		scanf("%s", ssettings->where_to_search);
 	}
-	if(ssettings->case_insensitive)	// Make all the letters in the pattern lower case.
-	{
-		for (unsigned int i = 0; ssettings->pattern[i] != 0; i++)
-		{
-			ssettings->pattern[i] = tolower(ssettings->pattern[i]);
-		}
-	}
 	return ssettings; // All Good!
 }
 
