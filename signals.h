@@ -51,7 +51,7 @@ void sig_int(int signo)
 		{
 			killpg(get_child_pgid(), SIGKILL); // Kill all child processes
 			log_action("SINAL", "KILL enviado para filhos.");
-			return;
+			exit(0);
 		}
 		else if(answer == 'N' || answer == 'n')
 		{
