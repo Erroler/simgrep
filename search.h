@@ -61,14 +61,11 @@ void process_file(char *path, const Search_Settings *ssettings)
 				free(line);
 				return;
 			}
-			if (!ssettings->show_number_of_lines_matched)
+			else if (ssettings->show_lines_number_matched)
 			{
-				if (ssettings->show_lines_number_matched) // Print line number
-				{
-					printf("%u:", line_number);
-				}
-				printf("%s", line);
+				printf("%s:%u:%s", path, line_number, line);
 			}
+			else if(!ssettings->show_number_of_lines_matched)	printf("%s", line);
 		}
 		line_number++;
 		total_number_of_matches++;
@@ -76,7 +73,7 @@ void process_file(char *path, const Search_Settings *ssettings)
 
 	if (ssettings->show_number_of_lines_matched)
 	{
-		printf("%d\n", total_number_of_matches);
+		printf("%s: %d\n", path, total_number_of_matches);
 	}
 	log_action("ABERTO FICHEIRO", path);
 }
@@ -124,6 +121,7 @@ void process_directory(char *path, const Search_Settings *ssettings)
 				new_child_was_created();
 			}
 		}
+		free(absolute_path);
 	}
 	closedir(dir);
 	log_action("DIRETORIO FECHADO", path);
