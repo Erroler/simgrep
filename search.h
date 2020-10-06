@@ -12,6 +12,7 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
+
 /** Returns 0 if there was a match or 1 if not.*/
 int process_line(char *line, const Search_Settings *ssettings)
 {
