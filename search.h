@@ -36,6 +36,7 @@ int process_line(char *line, const Search_Settings *ssettings)
 		}
 		pos++;
 	}
+	
 	return 1;
 }
 
