@@ -12,7 +12,6 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-
 /** Returns 0 if there was a match or 1 if not.*/
 int process_line(char *line, const Search_Settings *ssettings)
 {
@@ -26,7 +25,7 @@ int process_line(char *line, const Search_Settings *ssettings)
 			{
 				return 0;
 			}
-			else if ( !is_word_constituent(*(pos-1)) && !is_word_constituent(*(pos + strlen(ssettings->pattern))) )
+			else if (!is_word_constituent(*(pos-1)) && !is_word_constituent(*(pos + strlen(ssettings->pattern))) )
 			{
 				return 0;
 			}
